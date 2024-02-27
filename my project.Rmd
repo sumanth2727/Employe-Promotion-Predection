@@ -1,0 +1,511 @@
+---
+
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+rm(list=ls())
+train_df= read.csv("/Users/sumanth/Desktop/train.csv")
+str(train_df)
+summary(train_df)
+head(train_df)
+```
+```{r}
+test_df= read.csv("/Users/sumanth/Desktop/test.csv")
+str(test_df)
+summary(test_df)
+head(test_df)
+```
+
+check any duplicate in train and test
+```{r}
+library(dplyr)
+#we have distinct function in dplyr library it removes the duplicate rows if any in train and test
+train_df <- distinct(train_df)
+test_df <- distinct(test_df)
+```
+Handling missing values
+```{r}
+mode<-function(column) {
+   elements<-unique(column)
+   elements[which.max(tabulate(match(column,elements)))]
+}
+n<-mode(train_df$previous_year_rating)
+train_df$previous_year_rating[is.na(train_df$previous_year_rating)]<-n
+summary(train_df)
+sum(is.na(train_df))
+
+n<-mode(test_df$previous_year_rating)
+test_df$previous_year_rating[is.na(test_df$previous_year_rating)]<-n
+
+sum(is.na(test_df))
+
+summary(test_df)
+```
+ Now we can check how each column in data set is related to our target label is_promoted
+ 
+```{r}
+library(ggplot2)
+options(dplyr.summarise.inform = FALSE)
+train_df %>%
+    group_by(department, is_promoted) %>%
+    summarise(n=n()) %>%
+    ggplot(aes(x=department, y=n, group=is_promoted, fill=is_promoted)) + geom_bar(stat='identity', position='dodge') + theme(axis.text.x= element_text(angle=45))
+```
+
+```{r}
+train_df %>%
+    group_by(department, is_promoted) %>%
+    summarise(n=n()) %>%
+    filter(is_promoted==1) %>%  
+    ggplot(aes(x=department, y=n, group=is_promoted, fill=is_promoted)) + geom_bar(stat='identity', position='dodge') + theme(axis.text.x= element_text(angle=45))
+```
+sales & marketting, operations, procurement, technology, and analytics department have top 5 promotion spots of employee geting promoted
+
+```{r}
+train_df %>%
+    group_by(region, is_promoted) %>%
+    summarise(n=n()) %>%
+    ggplot(aes(x=region, y=n, group=is_promoted, fill=is_promoted)) + geom_bar(stat='identity', position='dodge') + theme(axis.text.x= element_text(angle=45))
+```
+
+
+
+
+```{r}
+train_df %>% 
+    group_by(education, is_promoted) %>%
+    summarise(n=n()) %>%
+    ggplot(aes(x=education, y=n, fill=is_promoted)) +geom_bar(stat='identity',position='dodge')
+```
+
+```{r}
+train_df %>% 
+    group_by(education, is_promoted) %>%
+    summarise(n=n()) %>%
+    filter(is_promoted==1) %>%
+    ggplot(aes(x=education, y=n, fill=is_promoted)) +geom_bar(stat='identity', position='dodge')
+```
+
+If employee education is Bachelors or masters & above have chance of promotion
+
+```{r}
+train_df %>% 
+    group_by(gender, is_promoted) %>%
+    summarise(n=n()) %>%
+    ggplot(aes(x=gender, y=n, fill=is_promoted)) + geom_bar(stat='identity', position='dodge')
+```
+
+``` {r}
+train_df %>% 
+    group_by(gender, is_promoted) %>%
+    summarise(n=n()) %>%
+    filter(is_promoted==1) %>%
+    ggplot(aes(x=gender, y=n, fill=is_promoted)) + geom_bar(stat='identity', position='dodge')
+
+```
+male and female ration in company is 2:1 and their promotion ratio also is in 2:1 ratio 
+
+```{r}
+train_df %>% 
+    group_by(recruitment_channel, is_promoted) %>% 
+    summarise(n=n()) %>% 
+    ggplot(aes(x=recruitment_channel, y=n, fill=is_promoted)) +geom_boxplot()
+
+```
+
+```{r}
+train_df %>% 
+    group_by(recruitment_channel, is_promoted) %>% 
+    summarise(n=n()) %>% 
+    filter(is_promoted==1) %>%
+    ggplot(aes(x=recruitment_channel, y=n, fill=is_promoted)) +geom_bar(stat='identity')
+```
+
+if employee is Sourcing or other has have chance of promotion than refered people
+
+```{r}
+# no_of_trainings and promotion
+train_df %>%
+    group_by(no_of_trainings, is_promoted) %>%
+    summarise(n=n()) %>%
+    filter(is_promoted==1) %>%
+    ggplot(aes(x=no_of_trainings, y=n, fill=is_promoted)) + geom_bar(stat='identity',position='dodge')    
+```
+# no_of_trainings and avg_training_score
+```{r}
+train_df %>%
+    summarise(no_of_trainings=no_of_trainings,  avg_training_score=avg_training_score) %>%
+    ggplot(aes(x=no_of_trainings, y=avg_training_score, group=no_of_trainings, fill=no_of_trainings)) + geom_boxplot()
+```
+
+Number of traing has inverse relationship with promotion
+
+```{r}
+train_df %>%
+    group_by(is_promoted) %>%
+    summarise(age=age, n=n()) %>%
+    arrange(age) %>%
+    ggplot(aes(x=is_promoted, y=age, group=is_promoted, fill=is_promoted)) + geom_boxplot()
+
+```
+
+```{r}
+train_df %>%
+    group_by(is_promoted) %>%
+    summarise(age=age, n=n()) %>%
+    arrange(age) %>%
+    filter(is_promoted==1) %>%
+    ggplot(aes(x=is_promoted, y=age, group=is_promoted, fill=is_promoted)) + geom_violin()
+```
+Most employes between 25 to 45 has high chance of promotion than others
+
+```{r}
+train_df %>%
+    group_by(is_promoted) %>%
+    summarise(rating=previous_year_rating) %>%
+    ggplot(aes(x=is_promoted, y=rating, group=is_promoted, fill=is_promoted)) + geom_violin()
+```
+
+if employess rating of previous year is more than 3 has higher chance to promote 
+
+```{r}
+train_df %>%
+    group_by(is_promoted) %>%
+    summarise(length=length_of_service) %>%
+    #filter(is_promoted==1) %>%
+    ggplot(aes(x=is_promoted, y=length, group=is_promoted, fill=is_promoted)) + geom_violin()
+```
+
+
+```{r}
+train_df %>%
+    group_by(KPIs_met..80., is_promoted) %>%
+    summarise(n=n()) %>%
+    ggplot(aes(x=KPIs_met..80., y=n, group=is_promoted, fill=is_promoted)) + geom_bar(stat='identity', position='dodge') + theme(axis.text.x= element_text(angle=45))
+```
+
+
+```{r}
+train_df %>% 
+    group_by(awards_won., is_promoted) %>%
+    summarise(n=n()) %>%
+    ggplot(aes(x=awards_won., y=n, group=is_promoted, fill=is_promoted)) + geom_bar(stat='identity', position='dodge')
+
+```
+
+
+```{r}
+train_df %>%
+    group_by(is_promoted) %>%
+    summarise(avg_training_score=avg_training_score) %>%
+    ggplot(aes(x=is_promoted, y=avg_training_score, group=is_promoted, fill=is_promoted)) + geom_boxplot()
+
+```
+
+acheiving at least over 70 training scores is recommended for promotion
+
+```{r}
+summary(train_df)
+str(train_df)
+```
+
+Converting categorical to numeric
+```{r}
+train_df$department=as.numeric(as.factor(train_df$department))
+train_df$region=as.numeric(as.factor(train_df$region))
+train_df$education=as.numeric(as.factor(train_df$education))
+train_df$gender=as.numeric(as.factor(train_df$gender))
+train_df$recruitment_channel=as.numeric(as.factor(train_df$recruitment_channel))
+
+test_df$department=as.numeric(as.factor(test_df$department))
+test_df$region=as.numeric(as.factor(test_df$region))
+test_df$education=as.numeric(as.factor(test_df$education))
+test_df$gender=as.numeric(as.factor(test_df$gender))
+test_df$recruitment_channel=as.numeric(as.factor(test_df$recruitment_channel))
+
+
+summary(train_df)
+head(train_df)
+
+summary(test_df)
+head(test_df)
+```
+
+Normalisation
+```{r}
+minmax <- function(x){
+ (x- min(x)) /(max(x)-min(x))
+}
+train_df$department<-minmax(train_df$department)
+train_df$region<-minmax(train_df$region)
+train_df$education<-minmax(train_df$education)
+train_df$gender<-minmax(train_df$gender)
+train_df$recruitment_channel<-minmax(train_df$recruitment_channel)
+train_df$no_of_trainings<-minmax(train_df$no_of_trainings)
+train_df$age<-minmax(train_df$age)
+train_df$previous_year_rating<-minmax(train_df$previous_year_rating)
+train_df$length_of_service<-minmax(train_df$length_of_service)
+train_df$KPIs_met..80.<-minmax(train_df$KPIs_met..80.)
+train_df$awards_won.<-minmax(train_df$awards_won.)
+train_df$avg_training_score<-minmax(train_df$avg_training_score)
+train_df<-train_df[,c(2,3,4,5,6,7,8,9,10,11,12,13,14)]
+summary(train_df)
+head(train_df)
+
+test_df<- as.data.frame(lapply(test_df[,c(2,3,4,5,6,7,8,9,10,11,12,13)], minmax))
+head(test_df)
+```
+
+```{r}
+summary(train_df)
+```
+ 
+
+Dividing into training and test data
+```{r}
+library(dplyr)
+library(class)
+library(e1071)
+library(caTools)
+split <- sample.split(train_df, SplitRatio = 0.7)
+traindata <- subset(train_df, split == "TRUE")
+validation_data <- subset(train_df, split == "FALSE")
+X_train <- traindata[, 1:12]
+y_train<- traindata[,13]
+X_valid <- validation_data[, 1:12]
+y_valid<-validation_data[,13]
+length(X_train$department)
+length(X_valid$department)
+print(X_train)
+print(y_train)
+print(X_valid)
+print(y_valid)
+```
+Knn
+
+```{r}
+myknn <- knn(X_train,X_valid,cl=y_train, k=10)
+confusion_matrix <- table(myknn,y_valid)
+confusion_matrix
+
+```
+find the error rate
+```{r}
+wrongdata<- (y_valid!=myknn)
+error<-sum(wrongdata)/length(wrongdata)
+error 
+```
+
+```{r}
+accuracy <- function(x){sum(diag(x)/(sum(rowSums(x)))) * 100}
+accuracy(confusion_matrix)
+```
+create a function for precision and find precision of model
+```{r}
+# precision = True Positive / (True Positive + False Positive)
+precision <- function(x){x[4]/sum(x[4],x[2])}
+precision(confusion_matrix)
+```
+
+create a function for recall and find recall value of model
+```{r}
+#recall= True Positive / (True Positive + False Negative)
+recall <- function(x){x[4]/sum(x[4],x[3])}
+recall(confusion_matrix)
+```
+
+f1 value for the model
+```{r}
+#F1=2 * (Precision * Recall) / (Precision + Recall)
+p<- precision(confusion_matrix)
+r<- recall(confusion_matrix)
+f1<- (2*(p*r))/(p+r)
+f1
+
+```
+Naive Bayes 
+```{r}
+library(e1071)
+library(class)
+naive<- naiveBayes(X_train,y_train)
+predict_naive <- predict(naive, X_valid)
+confusion_matrix <- table(predict_naive,y_valid)
+confusion_matrix
+```
+find the error rate
+```{r}
+wrongdata<- (y_valid!=predict_naive)
+error<-sum(wrongdata)/length(wrongdata)
+error 
+```
+```{r}
+accuracy(confusion_matrix)
+precision(confusion_matrix)
+recall(confusion_matrix)
+```
+
+f1 value for the model
+```{r}
+#F1=2 * (Precision * Recall) / (Precision + Recall)
+p<- precision(confusion_matrix)
+r<- recall(confusion_matrix)
+f1<- (2*(p*r))/(p+r)
+f1
+
+```
+Logistic Regression 
+```{r}
+library(caret)
+model <- glm(is_promoted~., family="binomial", data=traindata)
+```
+
+```{r}
+predicted <- predict(model, validation_data, type="response")
+#find optimal cutoff probability to use to maximize accuracy
+confusion_matrix<- table(predicted >0.5, validation_data$is_promoted)
+confusion_matrix
+```
+
+create a function for accuracy and find accuracy of model
+```{r}
+accuracy(confusion_matrix)
+precision(confusion_matrix)
+recall(confusion_matrix)
+```
+
+f1 value for the model
+```{r}
+#F1=2 * (Precision * Recall) / (Precision + Recall)
+p<- precision(confusion_matrix)
+r<- recall(confusion_matrix)
+f1<- (2*(p*r))/(p+r)
+f1
+
+```
+SVM
+```{r}
+#install.packages('caTools')
+library(caTools)
+library(e1071)
+ 
+svm_c<- svm(formula =is_promoted ~ .,data = traindata,type = 'C-classification',kernel = 'sigmoid')
+
+
+```
+
+```{r}
+svm_pred <- predict(svm_c, X_valid)
+confusion_matrix <- table(svm_pred,y_valid)
+confusion_matrix
+```
+find the error rate
+```{r}
+wrongdata<- (y_valid!=svm_pred)
+error<-sum(wrongdata)/length(wrongdata)
+error 
+```
+create a function for accuracy and find accuracy of model
+```{r}
+
+accuracy(confusion_matrix)
+precision(confusion_matrix)
+recall(confusion_matrix)
+```
+
+f1 value for the model
+```{r}
+#F1=2 * (Precision * Recall) / (Precision + Recall)
+p<- precision(confusion_matrix)
+r<- recall(confusion_matrix)
+f1<- (2*(p*r))/(p+r)
+f1
+
+```
+
+
+```{r}
+library(randomForest)
+traindata$is_promoted <- as.character(traindata$is_promoted)
+traindata$is_promoted <- as.factor(traindata$is_promoted)
+rf <-randomForest(traindata$is_promoted~.,data=traindata, ntree=1000,importance=TRUE)
+res<-predict(rf,newdata=X_valid,type="class")
+confusion_matrix<-table(res,y_valid)
+confusion_matrix
+```
+find the error rate
+```{r}
+wrongdata<- (y_valid!=res)
+error<-sum(wrongdata)/length(wrongdata)
+error 
+```
+create a function for accuracy and find accuracy of model
+```{r}
+accuracy(confusion_matrix)
+precision(confusion_matrix)
+recall(confusion_matrix)
+```
+
+f1 value for the model
+```{r}
+#F1=2 * (Precision * Recall) / (Precision + Recall)
+p<- precision(confusion_matrix)
+r<- recall(confusion_matrix)
+f1<- (2*(p*r))/(p+r)
+f1
+
+```
+XGBoost
+```{r}
+
+library("xgboost")
+bst <- xgboost(data = as.matrix(X_train), label = as.matrix(y_train), max_depth = 2,
+               eta = 0.5, nthread = 2, nrounds = 5, objective = "binary:logistic")
+## Predict class probability for new data
+pred <- predict(bst, as.matrix(X_valid))
+## Use arbitrary cutoff of 0.5 for classifier
+
+confusion_matrix<-table(as.matrix(y_valid), as.numeric(pred > 0.5))
+confusion_matrix
+accuracy(confusion_matrix)
+precision(confusion_matrix)
+recall(confusion_matrix)
+```
+f1 value for the model
+```{r}
+#F1=2 * (Precision * Recall) / (Precision + Recall)
+p<- precision(confusion_matrix)
+r<- recall(confusion_matrix)
+f1<- (2*(p*r))/(p+r)
+f1
+
+```
+Adabost
+```{r}
+#install.packages('adabag')  
+library(adabag)
+library(caret)
+
+model_adaboost <- boosting(is_promoted~., data=traindata, boos=TRUE, mfinal=5)
+summary(model_adaboost)
+pred_add <-predict(model_adaboost, validation_data)
+confusion_matrix <- pred_add$confusion
+confusion_matrix
+accuracy(confusion_matrix)
+precision(confusion_matrix)
+recall(confusion_matrix)
+```
+f1 value for the model
+```{r}
+#F1=2 * (Precision * Recall) / (Precision + Recall)
+p<- precision(confusion_matrix)
+r<- recall(confusion_matrix)
+f1<- (2*(p*r))/(p+r)
+f1
+
+```
+
