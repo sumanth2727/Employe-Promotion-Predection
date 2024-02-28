@@ -14,6 +14,7 @@ Source of Dataset: https://www.kaggle.com/datasets/shivan118/hranalysis
 Implementation Strategy and algorithms Used
 We have decided to implement and compare the following models:
 a. KNN
+![Image Alt Text](./Screen Shot 2024-02-27 at 6.29.51 PM.png)
 ./Screen Shot 2024-02-27 at 6.29.51 PM.png
 b. Naive Bayes
 c. Random Forest
