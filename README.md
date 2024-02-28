@@ -14,6 +14,7 @@ Source of Dataset: https://www.kaggle.com/datasets/shivan118/hranalysis
 Implementation Strategy and algorithms Used
 We have decided to implement and compare the following models:
 a. KNN
+./Screen Shot 2024-02-27 at 6.29.51 PM.png
 b. Naive Bayes
 c. Random Forest
 d. Logistic Regression
@@ -24,4 +25,6 @@ h. XGBoost
 Model metrics and Evaluation:
 We are going to evaluate the model using various metrics like Confusion Matrix, Precision, Recall, AUC-ROC, F1score, among others.
 We will then find the accuracy of each of the models and identify which is a better fit for our data.
+
+
 
