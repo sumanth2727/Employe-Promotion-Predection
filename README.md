@@ -14,7 +14,7 @@ Source of Dataset: https://www.kaggle.com/datasets/shivan118/hranalysis
 Implementation Strategy and algorithms Used
 We have decided to implement and compare the following models:
 a. KNN
-![Image Alt Text](./Screen Shot 2024-02-27 at 6.29.51 PM.png)
+![Image Alt Text](https://github.com/sumanth2727/Employe-Promotion-Predection/blob/main/Screen%20Shot%202024-02-27%20at%206.29.51%20PM.png)
 ./Screen Shot 2024-02-27 at 6.29.51 PM.png
 b. Naive Bayes
 c. Random Forest
